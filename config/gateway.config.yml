@@ -1,0 +1,62 @@
+http:
+  port: 8080
+admin:
+  port: 9876
+  host: localhost
+apiEndpoints:
+  securityApi:
+    host: localhost
+    paths: '/security/*'
+  httpbin:
+    host: localhost
+    paths: '/ip'
+serviceEndpoints:
+  securityApi:
+    url: 'http://localhost:8081'
+  httpbin:
+    url: 'https://httpbin.org'    
+policies:
+  - basic-auth
+  - cors
+  - expression
+  - key-auth
+  - log
+  - oauth2
+  - proxy
+  - rate-limit
+  - rewrite
+pipelines:
+  bin:
+    apiEndpoints:
+      - httpbin
+    policies:
+    # Uncomment `key-auth:` when instructed to in the Getting Started guide.
+      #- key-auth:
+      - proxy:
+          - action:
+              serviceEndpoint: httpbin 
+              changeOrigin: true    
+      - log: # policy name
+          - action:    # array of condition/actions objects
+              message: ${req.consumerId} ${req.ip} ${req.method} ${req.originalUrl} # parameter for log action
+  securityApi:
+    apiEndpoints:
+      - securityApi
+    policies:
+    # Uncomment `key-auth:` when instructed to in the Getting Started guide.
+      #- key-auth:
+      -
+        rewrite:
+          -
+            condition:
+              name: regexpmatch
+              match: ^/security/?(.*)$
+            action:
+              rewrite: /$1
+      - proxy:
+          - action:
+              serviceEndpoint: securityApi 
+              #changeOrigin: true
+      - log: # policy name
+          - action:    # array of condition/actions objects
+              message: ${req.consumerId} ${req.ip} ${req.method} ${req.originalUrl} # parameter for log action
