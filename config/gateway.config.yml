@@ -30,7 +30,7 @@ pipelines:
     apiEndpoints:
       - httpbin
     policies:
-    # Uncomment `key-auth:` when instructed to in the Getting Started guide.
+    # Uncomment `key-auth:` when instructed to in the Getting Started guide. testee
       #- key-auth:
       - proxy:
           - action:
